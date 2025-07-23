@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
+const validarProducto = require('../middleware/validarProducto');
+const verifyToken = require('../middleware/authMiddleware');
+const { isAdmin } = require('../middleware/roleMiddleware');
 
 // Obtener todos los productos
 router.get('/', async (req, res) => {
@@ -12,8 +15,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Crear un nuevo producto
-router.post('/', async (req, res) => {
+// Crear un nuevo producto con validación
+router.post('/', validarProducto,verifyToken, isAdmin, async (req, res) => {
   try {
     const nuevoProducto = new Product(req.body);
     const productoGuardado = await nuevoProducto.save();
@@ -34,8 +37,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Actualizar producto
-router.put('/:id', async (req, res) => {
+// Actualizar producto con validación
+router.put('/:id', validarProducto, verifyToken, isAdmin, async (req, res) => {
   try {
     const productoActualizado = await Product.findByIdAndUpdate(
       req.params.id,
@@ -49,7 +52,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Eliminar producto
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Producto eliminado correctamente' });
