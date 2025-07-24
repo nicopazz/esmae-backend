@@ -4,6 +4,9 @@ const Product = require('../models/Product');
 const validarProducto = require('../middleware/validarProducto');
 const verifyToken = require('../middleware/authMiddleware');
 const { isAdmin } = require('../middleware/roleMiddleware');
+const upload = require('../middleware/uploadImage');
+const multer = require('multer');
+const normalizarNumericos = require('../middleware/normalizarNumericos');
 
 // Obtener todos los productos
 router.get('/', async (req, res) => {
@@ -15,16 +18,35 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Crear un nuevo producto con validación
-router.post('/', validarProducto,verifyToken, isAdmin, async (req, res) => {
-  try {
-    const nuevoProducto = new Product(req.body);
-    const productoGuardado = await nuevoProducto.save();
-    res.status(201).json(productoGuardado);
-  } catch (error) {
-    res.status(400).json({ message: 'Error al crear producto' });
+// Crear un nuevo producto con validación y admin solamente
+router.post(
+  '/',
+  upload.single('image'), 
+  normalizarNumericos,       // primero procesamos la imagen y los datos
+  validarProducto,               // después validamos los datos ya disponibles
+  verifyToken,                   // autenticación
+  isAdmin,                       // verificación de rol
+  async (req, res) => {
+    try {
+      const { name, description, price, stock, dimensions, category } = req.body;
+
+      const nuevoProducto = new Product({
+        name,
+        description,
+        price,
+        stock,
+        image: req.file ? `/uploads/${req.file.filename}` : undefined,
+        dimensions: dimensions ? JSON.parse(dimensions) : undefined,
+        category
+      });
+
+      const productoGuardado = await nuevoProducto.save();
+      res.status(201).json(productoGuardado);
+    } catch (error) {
+      res.status(400).json({ message: 'Error al crear producto', error });
+    }
   }
-});
+);
 
 // Obtener un producto por ID
 router.get('/:id', async (req, res) => {
@@ -37,7 +59,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Actualizar producto con validación
+// Actualizar producto con validación y admin solamente
 router.put('/:id', validarProducto, verifyToken, isAdmin, async (req, res) => {
   try {
     const productoActualizado = await Product.findByIdAndUpdate(
@@ -51,7 +73,7 @@ router.put('/:id', validarProducto, verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// Eliminar producto
+// Eliminar producto con validación y admin solamente
 router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);

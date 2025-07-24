@@ -21,6 +21,9 @@ const productRoutes = require('./routes/productRoutes');
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 
+// Middleware para manejar la carga de imágenes
+app.use('/uploads', express.static('uploads'));
+
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Conectado a MongoDB'))
