@@ -25,7 +25,14 @@ const app = express();
 
 // Middlewares globales
 app.use(cors({
-  origin: 'http://localhost:3000', // o el dominio de tu frontend
+  origin: function (origin, callback) {
+    const whitelist = ['http://localhost:5173', 'http://localhost:5000'];
+    if (!origin || whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(helmet());
@@ -34,7 +41,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Ruta estática para servir imágenes
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, path) => {
+    res.set('Access-Control-Allow-Origin', '*'); // permite acceso desde cualquier origen
+    res.set('Cross-Origin-Resource-Policy', 'same-site'); // o 'cross-origin' si es necesario
+  }
+}));
+
 
 // Rutas principales
 app.use('/api/products', productRoutes);
