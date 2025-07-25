@@ -22,6 +22,25 @@ router.get('/', async (req, res) => {
 
 // Obtener productos con paginación, búsqueda y filtros
 router.get('/', getProducts);
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Obtener todos los productos
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de productos
+ */
+
 
 // Crear un nuevo producto con validación y admin solamente
 router.post(

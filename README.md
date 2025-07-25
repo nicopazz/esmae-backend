@@ -115,9 +115,57 @@ Se realiza mediante `multipart/form-data` usando el campo `image`. El archivo se
 
 ---
 
+## Documentación Swagger
+
+- Swagger UI disponible en: `http://localhost:5000/api/docs`
+- Agregá anotaciones en tus rutas para documentarlas.
+
+Ejemplo de anotación Swagger para un endpoint:
+
+```js
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Obtener productos
+ *     tags: [Productos]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Texto para buscar por nombre o descripción
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de productos
+ */
+```
+
+---
+
 ## Por hacer&#x20;
 
-- Documentación Swagger
+- Documentación Swagger extendida
 - Tests automáticos
 - Deploy a Railway / Render
 

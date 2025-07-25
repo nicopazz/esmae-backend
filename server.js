@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const path = require('path');
+const swaggerUI = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 
 // Rutas
 const productRoutes = require('./routes/productRoutes');
@@ -37,6 +39,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Rutas principales
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 // Middleware global de manejo de errores (después de las rutas)
 app.use(errorHandler);
