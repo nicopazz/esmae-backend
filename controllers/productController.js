@@ -1,9 +1,61 @@
 const Product = require('../models/Product');
 
+
 // GET /api/products
 const getProducts = async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      category,
+      minPrice,
+      maxPrice
+    } = req.query;
+
+    const andFilters = [];
+
+    if (typeof search === 'string' && search.trim().length > 0) {
+      andFilters.push({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      });
+    }
+
+    if (category) {
+      andFilters.push({
+        category: { $regex: category, $options: 'i' }
+      });
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      const priceFilter = {};
+      if (!isNaN(minPrice)) priceFilter.$gte = Number(minPrice);
+      if (!isNaN(maxPrice)) priceFilter.$lte = Number(maxPrice);
+      if (Object.keys(priceFilter).length > 0) {
+        andFilters.push({ price: priceFilter });
+      }
+    }
+
+    const query = andFilters.length > 0 ? { $and: andFilters } : {};
+
+    
+    const total = await Product.countDocuments(query);
+    const products = await Product.find(query)
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    res.json({
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener productos', error });
+  }
 };
 
 // GET /api/products/:id

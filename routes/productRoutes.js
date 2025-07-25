@@ -7,8 +7,9 @@ const { isAdmin } = require('../middleware/roleMiddleware');
 const upload = require('../middleware/uploadImage');
 const multer = require('multer');
 const normalizarNumericos = require('../middleware/normalizarNumericos');
+const { getProducts } = require('../controllers/productController');
 
-// Obtener todos los productos
+/* Obtener todos los productos
 router.get('/', async (req, res) => {
   try {
     const productos = await Product.find();
@@ -17,13 +18,17 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error al obtener productos' });
   }
 });
+*/
+
+// Obtener productos con paginación, búsqueda y filtros
+router.get('/', getProducts);
 
 // Crear un nuevo producto con validación y admin solamente
 router.post(
   '/',
   upload.single('image'), 
-  normalizarNumericos,       // primero procesamos la imagen y los datos
-  validarProducto,               // después validamos los datos ya disponibles
+  normalizarNumericos,       // procesamos la imagen y los datos
+  validarProducto,               // validamos los datos ya disponibles
   verifyToken,                   // autenticación
   isAdmin,                       // verificación de rol
   async (req, res) => {
