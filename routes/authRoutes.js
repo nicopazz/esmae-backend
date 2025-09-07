@@ -43,32 +43,39 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Buscar el usuario
     const usuario = await User.findOne({ email });
     if (!usuario) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    // Comparar contraseña
     const passwordValida = await bcrypt.compare(password, usuario.password);
     if (!passwordValida) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    // Crear token
     const token = jwt.sign(
       { id: usuario._id, email: usuario.email, role: usuario.role },
       process.env.JWT_SECRET || 'clave_secreta',
       { expiresIn: '2h' }
     );
 
-    res.json({ message: 'Login exitoso', token });
-    
+    // 👇 devolvemos token + usuario sin password
+    res.json({
+      message: 'Login exitoso',
+      token,
+      user: {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        role: usuario.role
+      }
+    });
 
   } catch (error) {
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });
+
 
 router.put('/role/:id', verificarToken, verificarAdmin, actualizarRolUsuario);
 router.delete('/role/:id', verificarToken, verificarAdmin, actualizarRolUsuario);
