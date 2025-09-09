@@ -46,20 +46,20 @@ router.get('/', getProducts);
 router.post(
   '/',
   upload.single('image'), 
-  normalizarNumericos,       // procesamos la imagen y los datos
-  validarProducto,               // validamos los datos ya disponibles
-  verifyToken,                   // autenticación
-  isAdmin,                       // verificación de rol
+  normalizarNumericos,
+  validarProducto,
+  verifyToken,
+  isAdmin,
   async (req, res) => {
     try {
-      const { name, description, price, stock, dimensions, category } = req.body;
+      const { name, description, price, stock, dimensions, category, image } = req.body;
 
       const nuevoProducto = new Product({
         name,
         description,
         price,
         stock,
-        image: req.file ? `/uploads/${req.file.filename}` : undefined,
+        image: req.file ? `/uploads/${req.file.filename}` : image || undefined,
         dimensions: dimensions ? JSON.parse(dimensions) : undefined,
         category
       });
@@ -71,6 +71,7 @@ router.post(
     }
   }
 );
+
 
 // Obtener un producto por ID
 router.get('/:id', async (req, res) => {
