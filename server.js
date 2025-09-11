@@ -29,7 +29,7 @@ app.use(cors({
     const whitelist = [
       'http://localhost:5173',
       'http://localhost:5000',
-      'https://esmae.vercel.app/'   // 👈 dominio del frontend en Vercel
+      'https://esmae.vercel.app'   // 👈 sin la barra final
     ];
 
     if (!origin || whitelist.includes(origin)) {
@@ -41,6 +41,7 @@ app.use(cors({
   },
   credentials: true
 }));
+
 
 app.use(helmet());
 app.use(compression());
