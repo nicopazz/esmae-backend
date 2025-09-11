@@ -26,15 +26,22 @@ const app = express();
 // Middlewares globales
 app.use(cors({
   origin: function (origin, callback) {
-    const whitelist = ['http://localhost:5173', 'http://localhost:5000'];
+    const whitelist = [
+      'http://localhost:5173',
+      'http://localhost:5000',
+      'https://tu-app.vercel.app'   // 👈 dominio del frontend en Vercel
+    ];
+
     if (!origin || whitelist.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("❌ Bloqueado por CORS:", origin);
       callback(new Error('No permitido por CORS'));
     }
   },
   credentials: true
 }));
+
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
